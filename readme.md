@@ -42,7 +42,7 @@ This command will create the VMs according to the configuration specified in the
 
 ## Customization
 
-You can customize the Kubernetes cluster configuration by modifying the parameters in the `Vagrantfile` and the Ansible playbooks located in the `ansible` directory.
+You can customize the Kubernetes cluster configuration by modifying the parameters in the `Vagrantfile` and the Ansible playbooks located in the `kubernetes-setup` directory.
 
 ## Contributing
 
