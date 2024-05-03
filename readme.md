@@ -1,6 +1,6 @@
 # Kubernetes Cluster Setup with Vagrant and Ansible
 
-![Kubernetes Logo](https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Kubernetes_logo_without_workmark.svg/120px-Kubernetes_logo_without_workmark.svg.png) ![Vagrant Logo](https://upload.wikimedia.org/wikipedia/commons/8/87/Vagrant.png) ![Ansible Logo](https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Ansible_logo.svg/120px-Ansible_logo.svg.png)
+<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/3/39/Kubernetes_logo_without_workmark.svg/120px-Kubernetes_logo_without_workmark.svg.png" width="120"> <img src="https://upload.wikimedia.org/wikipedia/commons/8/87/Vagrant.png" width="120"> <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/2/24/Ansible_logo.svg/120px-Ansible_logo.svg.png" width="120">
 
 This repository provides all the necessary files to effortlessly set up and configure a Kubernetes cluster using Vagrant and Ansible. Leveraging VirtualBox as the hypervisor, this solution ensures seamless virtual machine creation.
 
