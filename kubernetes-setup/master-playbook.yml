@@ -1,0 +1,150 @@
+---
+- hosts: all
+  become: true
+  tasks:
+  - name: Install packages that allow apt to be used over HTTPS
+    apt:
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - apt-transport-https
+      - ca-certificates
+      - curl
+      - gnupg-agent
+      - software-properties-common
+
+  - name: Add an apt signing key for Docker
+    apt_key:
+      url: https://download.docker.com/linux/ubuntu/gpg
+      state: present
+
+  - name: Add apt repository for stable version
+    apt_repository:
+      repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+      state: present
+
+  - name: Install docker and its dependecies
+    apt:
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+    notify:
+      - docker status
+
+  - name: Configure containerd config
+    copy:
+      src: "{{ item.src }}"
+      dest: "{{ item.dest }}"
+    with_items:
+      - { src: config.toml, dest: /etc/containerd/config.toml }
+
+  - name: Configuring Systemd cgroup driver for containerd
+    lineinfile:
+      path: /etc/containerd/config.toml
+      regexp: "            SystemdCgroup = false"
+      line: "            SystemdCgroup = true"
+
+  - name: Enable and start containerd
+    service:
+      name: containerd
+      state: restarted
+      enabled: yes
+
+  - name: Add vagrant user to docker group
+    user:
+      name: vagrant
+      group: docker
+
+  - name: Remove swapfile from /etc/fstab
+    mount:
+      name: "{{ item }}"
+      fstype: swap
+      state: absent
+    with_items:
+      - swap
+      - none
+
+  - name: Disable swap
+    command: swapoff -a
+    when: ansible_swaptotal_mb > 0
+
+  - name: Create k8s apt repo key folder
+    shell:
+      cmd: sudo mkdir -p /etc/apt/keyrings
+
+  - name: Add Kubernetes apt-key
+    get_url:
+      url: https://pkgs.k8s.io/core:/stable:/v1.29/deb/Release.key
+      dest: /etc/apt/keyrings/kubernetes-apt-keyring.asc
+      mode: "0644"
+      force: true
+
+  - name: Add Kubernetes APT repository
+    apt_repository:
+      repo: "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.asc] https://pkgs.k8s.io/core:/stable:/v1.29/deb/ /"
+      state: present
+      update_cache: yes
+
+  - name: Install Kubernetes binaries
+    apt:
+      name: "{{ packages }}"
+      state: present
+      update_cache: yes
+    vars:
+      packages:
+        - kubelet
+        - kubeadm
+        - kubectl
+
+  - name: Configure node ip
+    lineinfile:
+      path: /etc/default/kubelet
+      line: KUBELET_EXTRA_ARGS=--node-ip={{ node_ip }}
+      create: yes
+
+  - name: Restart kubelet
+    service:
+      name: kubelet
+      daemon_reload: yes
+      state: restarted
+      enabled: yes
+
+  - name: Initialize the Kubernetes cluster using kubeadm
+    command: kubeadm init --apiserver-advertise-address="192.168.50.10" --apiserver-cert-extra-sans="192.168.50.10"  --node-name k8s-master --pod-network-cidr=192.168.0.0/16
+
+  - name: Setup kubeconfig for vagrant user
+    command: "{{ item }}"
+    with_items:
+     - mkdir -p /home/vagrant/.kube
+     - cp -i /etc/kubernetes/admin.conf /home/vagrant/.kube/config
+     - chown vagrant:vagrant /home/vagrant/.kube/config
+
+  - name: Install tiga calico pod network
+    become: false
+    command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.3/manifests/tigera-operator.yaml
+
+  - name: Install calico pod network
+    become: false
+    command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.3/manifests/custom-resources.yaml
+
+  - name: Generate join command
+    command: kubeadm token create --print-join-command
+    register: join_command
+
+  - name: Copy join command to local file
+    local_action:
+      module: copy
+      content: "{{ join_command.stdout_lines[0] }}"
+      dest: "./join-command"
+    become: false
+
+  handlers:
+    - name: docker status
+      service: name=docker state=started
