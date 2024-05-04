@@ -16,7 +16,7 @@ Before diving in, make sure your system meets the following requirements:
 - [Vagrant](https://www.vagrantup.com/): Use Vagrant 2.2.16 for compatibility.
 - [Ansible](https://www.ansible.com/): Ensure you have Ansible Core 2.16.5 installed.
 
-If you're utilizing WSL, refer to [this guide](https://developer.hashicorp.com/vagrant/docs/other/wsl) for additional setup instructions.
+If you're utilizing WSL, refer to [this guide](https://developer.hashicorp.com/vagrant/docs/other/wsl) for additional setup instructions; for ssh issues run vagrant plugin install virtualbox_WSL2 and chmod 600 the private_key file.
 
 ## Installation
 
