@@ -1,3 +1,2 @@
 .vagrant
-kubernetes-setup/files/*
 kubernetes-setup/join-command
