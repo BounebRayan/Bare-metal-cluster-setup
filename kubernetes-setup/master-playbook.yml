@@ -128,11 +128,11 @@
 
   - name: Install tiga calico pod network
     become: false
-    command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.3/manifests/tigera-operator.yaml
+    command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.1/manifests/tigera-operator.yaml
 
   - name: Install calico pod network
     become: false
-    command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.27.3/manifests/custom-resources.yaml
+    command: kubectl create -f https://raw.githubusercontent.com/projectcalico/calico/v3.28.1/manifests/custom-resources.yaml
 
   - name: Generate join command
     command: kubeadm token create --print-join-command
