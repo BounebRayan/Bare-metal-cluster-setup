@@ -1,5 +1,5 @@
 
-![Awesome ReadME](https://i.ibb.co/Km4c4wF/Untitled.png)
+![Awesome ReadME](https://i.ibb.co/580HgXy/Untitled-2.png)
 
 # Bare Metal Kubernetes Cluster Setup
 
